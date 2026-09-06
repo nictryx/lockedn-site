@@ -28,6 +28,7 @@ const LM = {
   LEFT_ELBOW: 13,     RIGHT_ELBOW: 14,
   LEFT_WRIST: 15,     RIGHT_WRIST: 16,
   LEFT_HIP: 23,       RIGHT_HIP: 24,
+  LEFT_KNEE: 25,      RIGHT_KNEE: 26,
 };
 
 type Landmark = { x:number; y:number; z:number; visibility?:number };
@@ -56,6 +57,8 @@ function checkFrontFacing(lms: Landmark[]): {
   const rw = lms[LM.RIGHT_WRIST];
   const lh = lms[LM.LEFT_HIP];
   const rh = lms[LM.RIGHT_HIP];
+  const lk = lms[LM.LEFT_KNEE];
+  const rk = lms[LM.RIGHT_KNEE];
 
   const leftElbow  = angleDeg(ls, le, lw);
   const rightElbow = angleDeg(rs, re, rw);
@@ -91,7 +94,29 @@ function checkFrontFacing(lms: Landmark[]): {
   checks.push({ label: "Body position", pass: hipsOk,
     value: hipsOk ? "✓" : "Get into plank" });
 
-  return { ok: visOk && shouldersLevel && wristsDown && hipsOk, checks, avgElbow };
+  // 5. Knees NOT on floor — if knees are visible and far below hips, person is kneeling
+  // From front view: kneeling = knees clearly visible with Y much higher than hips
+  // Straight legs = knees hidden or at similar Y to hips
+  const lkVis = vis(lk);
+  const rkVis = vis(rk);
+  const kneeThreshold = 0.08; // knee must not be this far below hips
+  let kneesOk = true;
+  let kneeValue = "✓";
+
+  // Only check if at least one knee is clearly visible
+  if (lkVis > 0.5 || rkVis > 0.5) {
+    const avgKneeY = (lkVis > rkVis) ? lk.y : (rkVis > lkVis) ? rk.y : (lk.y + rk.y) / 2;
+    const kneeDropBelowHip = avgKneeY - avgHipY;
+
+    if (kneeDropBelowHip > kneeThreshold) {
+      kneesOk = false;
+      kneeValue = "Lift knees off floor";
+    }
+  }
+
+  checks.push({ label: "Knees up", pass: kneesOk, value: kneeValue });
+
+  return { ok: visOk && shouldersLevel && wristsDown && hipsOk && kneesOk, checks, avgElbow };
 }
 
 export default function PoseTestClient() {
