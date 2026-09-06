@@ -30,6 +30,7 @@ const LM = {
   LEFT_WRIST: 15,     RIGHT_WRIST: 16,
   LEFT_HIP: 23,       RIGHT_HIP: 24,
   LEFT_KNEE: 25,      RIGHT_KNEE: 26,
+  LEFT_ANKLE: 27,     RIGHT_ANKLE: 28,
 };
 
 type Landmark = { x:number; y:number; z:number; visibility?:number };
@@ -60,6 +61,8 @@ function checkFrontFacing(lms: Landmark[]): {
   const rh = lms[LM.RIGHT_HIP];
   const lk = lms[LM.LEFT_KNEE];
   const rk = lms[LM.RIGHT_KNEE];
+  const la = lms[LM.LEFT_ANKLE];
+  const ra = lms[LM.RIGHT_ANKLE];
 
   const leftElbow  = angleDeg(ls, le, lw);
   const rightElbow = angleDeg(rs, re, rw);
@@ -95,27 +98,38 @@ function checkFrontFacing(lms: Landmark[]): {
   checks.push({ label: "Body position", pass: hipsOk,
     value: hipsOk ? "✓" : "Get into plank" });
 
-  // 5. Knees NOT on floor — if knees are visible and far below hips, person is kneeling
-  // From front view: kneeling = knees clearly visible with Y much higher than hips
-  // Straight legs = knees hidden or at similar Y to hips
+  // 5. Knees straight — use hip-knee-ankle angle, same logic as side-view
+  // Kneeling: angle ~70-100°. Straight legs: ~160-180°.
+  // If knees not visible (hidden behind body = good), pass automatically.
+  const KNEE_STRAIGHT_MIN = 150;
   const lkVis = vis(lk);
   const rkVis = vis(rk);
-  const kneeThreshold = 0.08; // knee must not be this far below hips
+  const laVis = vis(la);
+  const raVis = vis(ra);
+
   let kneesOk = true;
-  let kneeValue = "✓";
+  let kneeAngleDisplay = "legs straight ✓";
 
-  // Only check if at least one knee is clearly visible
-  if (lkVis > 0.5 || rkVis > 0.5) {
-    const avgKneeY = (lkVis > rkVis) ? lk.y : (rkVis > lkVis) ? rk.y : (lk.y + rk.y) / 2;
-    const kneeDropBelowHip = avgKneeY - avgHipY;
+  // Only check if knee AND ankle are visible enough to compute a real angle
+  const leftKneeCheckable  = lkVis > VIS_MIN && laVis > VIS_MIN;
+  const rightKneeCheckable = rkVis > VIS_MIN && raVis > VIS_MIN;
 
-    if (kneeDropBelowHip > kneeThreshold) {
-      kneesOk = false;
-      kneeValue = "Lift knees off floor";
+  if (leftKneeCheckable || rightKneeCheckable) {
+    // Use whichever side has better visibility
+    let kneeAngle: number;
+    if (leftKneeCheckable && rightKneeCheckable) {
+      kneeAngle = Math.round((angleDeg(lh, lk, la) + angleDeg(rh, rk, ra)) / 2);
+    } else if (leftKneeCheckable) {
+      kneeAngle = Math.round(angleDeg(lh, lk, la));
+    } else {
+      kneeAngle = Math.round(angleDeg(rh, rk, ra));
     }
+    kneesOk = kneeAngle >= KNEE_STRAIGHT_MIN;
+    kneeAngleDisplay = kneesOk ? `${kneeAngle}° ✓` : `${kneeAngle}° — lift knees`;
   }
+  // If neither knee is visible — legs are hidden behind body = straight = pass
 
-  checks.push({ label: "Knees up", pass: kneesOk, value: kneeValue });
+  checks.push({ label: "Legs straight", pass: kneesOk, value: kneeAngleDisplay });
 
   return { ok: visOk && shouldersLevel && wristsDown && hipsOk && kneesOk, checks, avgElbow };
 }
