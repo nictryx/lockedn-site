@@ -1,6 +1,5 @@
 //DEV NOTE : Friends 1v1 ... pregame lobby (should include "READY" , "MIC FOR TRASH TALK" , "SCREENS SIDE BY SIDE") 
 
-
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -334,10 +333,16 @@ export default function LobbyClient({ roomId }: Props) {
     const interval = setInterval(() => {
       const remaining = getRemainingLobbyTime();
       setLobbyTimer(remaining);
-      if (remaining <= 0) clearInterval(interval);
+      // ── AUTO-READY when trash talk timer ends ─────────────────────
+      // If player hasn't tapped ready by the time trash talk ends,
+      // auto-ready them so the battle can start
+      if (remaining <= 0) {
+        clearInterval(interval);
+        if (!myReady) handleReady();
+      }
     }, 500);
     return () => clearInterval(interval);
-  }, [lobbyState]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lobbyState, myReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (lobbyState === "camera_prompt") return;
@@ -448,11 +453,10 @@ export default function LobbyClient({ roomId }: Props) {
             background: cameraErr ? COLORS.yellowDim : "linear-gradient(160deg, rgba(48,209,88,0.15), rgba(48,209,88,0.05))",
             border: `0.5px solid ${cameraErr ? "rgba(255,214,10,0.3)" : "rgba(48,209,88,0.3)"}`,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 40,
             backdropFilter: "blur(30px)",
             WebkitBackdropFilter: "blur(30px)",
           }}>
-            {cameraErr ? "􀎠" : "􀍉"}
+            {cameraErr ? <LockIcon size={40} color={COLORS.yellow}/> : <CameraIcon size={40} color={COLORS.green}/>}
           </div>
 
           <div style={{ textAlign: "center", maxWidth: 340 }}>
@@ -660,8 +664,9 @@ export default function LobbyClient({ roomId }: Props) {
                       background: COLORS.yellowDim,
                       border: `0.5px solid rgba(255,214,10,0.3)`,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 24,
-                    }}>􀇾</div>
+                    }}>
+                      <WarningIcon size={26} color={COLORS.yellow}/>
+                    </div>
                     <div style={{ fontSize: 13, color: COLORS.yellow, textAlign: "center", maxWidth: 220 }}>
                       Opponent is fixing their camera
                     </div>
@@ -694,8 +699,8 @@ export default function LobbyClient({ roomId }: Props) {
             <ReadyBadge ready={oppReady} position={{ top: 12, right: 12 }} />
           </div>
 
-          {/* Divider */}
-          <div style={{ height: 1, background: COLORS.border, flexShrink: 0 }}/>
+          {/* VS Badge — sits over the divider between cameras */}
+          <VSBadge />
 
           {/* YOU (bottom half) */}
           <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
@@ -731,11 +736,12 @@ export default function LobbyClient({ roomId }: Props) {
               border: `0.5px solid ${isMuted ? "rgba(255,69,58,0.4)" : COLORS.border}`,
               cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 18, color: isMuted ? COLORS.red : COLORS.text,
+              color: isMuted ? COLORS.red : COLORS.text,
               transition: "all 0.2s ease",
               WebkitTapHighlightColor: "transparent",
+              zIndex: 10,
             }}>
-              {isMuted ? "􀊢" : "􀊰"}
+              {isMuted ? <MicOffIcon size={20} color={COLORS.red}/> : <MicOnIcon size={20} color={COLORS.text}/>}
             </button>
 
             {/* Bottom controls */}
@@ -829,8 +835,9 @@ export default function LobbyClient({ roomId }: Props) {
             background: COLORS.redDim,
             border: `0.5px solid rgba(255,69,58,0.3)`,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 32,
-          }}>􀇾</div>
+          }}>
+            <WarningIcon size={32} color={COLORS.red}/>
+          </div>
           <div style={{ textAlign: "center", maxWidth: 320 }}>
             <h1 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 8px", letterSpacing: -0.4 }}>
               Something went wrong
@@ -956,6 +963,167 @@ function SpeakingBars() {
         @keyframes voiceBar {
           from { transform: scaleY(0.4); opacity: 0.6; }
           to   { transform: scaleY(1.2); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SVG ICONS (Apple SF Symbols style, works on every device)
+// ═══════════════════════════════════════════════════════════════
+
+function CameraIcon({ size = 24, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9.5 3.5L8 6H5C3.9 6 3 6.9 3 8V18C3 19.1 3.9 20 5 20H19C20.1 20 21 19.1 21 18V8C21 6.9 20.1 6 19 6H16L14.5 3.5H9.5Z"
+            stroke={color} strokeWidth="1.6" strokeLinejoin="round"/>
+      <circle cx="12" cy="13" r="4" stroke={color} strokeWidth="1.6"/>
+    </svg>
+  );
+}
+
+function LockIcon({ size = 24, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="10" width="16" height="11" rx="2" stroke={color} strokeWidth="1.6"/>
+      <path d="M8 10V7C8 4.79 9.79 3 12 3C14.21 3 16 4.79 16 7V10"
+            stroke={color} strokeWidth="1.6" strokeLinecap="round"/>
+      <circle cx="12" cy="15" r="1.5" fill={color}/>
+    </svg>
+  );
+}
+
+function MicOnIcon({ size = 24, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="9" y="3" width="6" height="12" rx="3" stroke={color} strokeWidth="1.6"/>
+      <path d="M5 11C5 14.87 8.13 18 12 18C15.87 18 19 14.87 19 11"
+            stroke={color} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="12" y1="18" x2="12" y2="22" stroke={color} strokeWidth="1.6" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function MicOffIcon({ size = 24, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="9" y="3" width="6" height="12" rx="3" stroke={color} strokeWidth="1.6"/>
+      <path d="M5 11C5 14.87 8.13 18 12 18C15.87 18 19 14.87 19 11"
+            stroke={color} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="12" y1="18" x2="12" y2="22" stroke={color} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="3" y1="3" x2="21" y2="21" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function WarningIcon({ size = 24, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3L2.5 20H21.5L12 3Z"
+            stroke={color} strokeWidth="1.6" strokeLinejoin="round"/>
+      <line x1="12" y1="10" x2="12" y2="14" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+      <circle cx="12" cy="17" r="1" fill={color}/>
+    </svg>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VS BADGE — animated centerpiece between opponent and you
+// ═══════════════════════════════════════════════════════════════
+
+function VSBadge() {
+  return (
+    <div style={{
+      position: "absolute", top: "50%", left: "50%",
+      transform: "translate(-50%, -50%)",
+      zIndex: 20, pointerEvents: "none",
+    }}>
+      {/* Outer glow rings */}
+      <div style={{
+        position: "absolute", inset: -20,
+        borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(48,209,88,0.25) 0%, transparent 65%)",
+        animation: "vsGlow 2.4s ease-in-out infinite",
+      }}/>
+
+      {/* Diamond/hexagon container */}
+      <div style={{
+        position: "relative",
+        width: 84, height: 84,
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        {/* Rotating rim */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "conic-gradient(from 0deg, #30D158, transparent 30%, transparent 55%, #30D158 65%, transparent 90%)",
+          borderRadius: 20,
+          animation: "vsRotate 4s linear infinite",
+          opacity: 0.7,
+        }}/>
+
+        {/* Inner black diamond */}
+        <div style={{
+          position: "absolute", inset: 2,
+          background: "linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%)",
+          borderRadius: 18,
+          border: "1px solid rgba(48,209,88,0.4)",
+          boxShadow: "inset 0 0 20px rgba(48,209,88,0.15), 0 0 30px rgba(0,0,0,0.6)",
+        }}/>
+
+        {/* Grid pattern overlay */}
+        <div style={{
+          position: "absolute", inset: 4, borderRadius: 16,
+          backgroundImage: `
+            linear-gradient(rgba(48,209,88,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(48,209,88,0.05) 1px, transparent 1px)
+          `,
+          backgroundSize: "8px 8px",
+          overflow: "hidden",
+        }}/>
+
+        {/* VS text */}
+        <div style={{
+          position: "relative",
+          fontSize: 34, fontWeight: 900,
+          letterSpacing: -1.5,
+          fontFamily: SYSTEM_FONT,
+          background: "linear-gradient(180deg, #FFFFFF 0%, #B8F5C8 60%, #30D158 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+          filter: "drop-shadow(0 0 12px rgba(48,209,88,0.6))",
+          animation: "vsPulse 1.6s ease-in-out infinite",
+        }}>
+          VS
+        </div>
+
+        {/* Bottom shine sweep */}
+        <div style={{
+          position: "absolute", inset: 4, borderRadius: 16,
+          background: "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%)",
+          animation: "vsShine 3s ease-in-out infinite",
+          pointerEvents: "none",
+        }}/>
+      </div>
+
+      <style>{`
+        @keyframes vsPulse {
+          0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 12px rgba(48,209,88,0.6)); }
+          50%      { transform: scale(1.06); filter: drop-shadow(0 0 18px rgba(48,209,88,0.9)); }
+        }
+        @keyframes vsGlow {
+          0%, 100% { opacity: 0.5; transform: scale(1);    }
+          50%      { opacity: 1;   transform: scale(1.15); }
+        }
+        @keyframes vsRotate {
+          from { transform: rotate(0deg);   }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes vsShine {
+          0%   { transform: translateX(-100%); }
+          60%  { transform: translateX(100%);  }
+          100% { transform: translateX(100%);  }
         }
       `}</style>
     </div>
