@@ -123,38 +123,19 @@ function checkFrontFacing(lms: Landmark[]): {
   checks.push({ label: "Body position", pass: hipsOk,
     value: hipsOk ? "✓" : "Get into plank" });
 
-  // 5. Knees straight — use hip-knee-ankle angle, same logic as side-view
-  // Kneeling: angle ~70-100°. Straight legs: ~160-180°.
-  // If knees not visible (hidden behind body = good), pass automatically.
-  const KNEE_STRAIGHT_MIN = 150;
-  const lkVis = vis(lk);
-  const rkVis = vis(rk);
-  const laVis = vis(la);
-  const raVis = vis(ra);
-
-  let kneesOk = true;
-  let kneeAngleDisplay = "legs straight ✓";
-
-  // Only check if knee AND ankle are visible enough to compute a real angle
-  const leftKneeCheckable  = lkVis > VIS_MIN && laVis > VIS_MIN;
-  const rightKneeCheckable = rkVis > VIS_MIN && raVis > VIS_MIN;
-
-  if (leftKneeCheckable || rightKneeCheckable) {
-    // Use whichever side has better visibility
-    let kneeAngle: number;
-    if (leftKneeCheckable && rightKneeCheckable) {
-      kneeAngle = Math.round((angleDeg(lh, lk, la) + angleDeg(rh, rk, ra)) / 2);
-    } else if (leftKneeCheckable) {
-      kneeAngle = Math.round(angleDeg(lh, lk, la));
-    } else {
-      kneeAngle = Math.round(angleDeg(rh, rk, ra));
-    }
-    kneesOk = kneeAngle >= KNEE_STRAIGHT_MIN;
-    kneeAngleDisplay = kneesOk ? `${kneeAngle}° ✓` : `${kneeAngle}° — lift knees`;
-  }
-  // If neither knee is visible — legs are hidden behind body = straight = pass
-
-  checks.push({ label: "Legs straight", pass: kneesOk, value: kneeAngleDisplay });
+  // 5. Body straight — use HIP angle (shoulder-hip-knee) instead of knee angle
+  // From front view, knee angles are unreliable (legs foreshortened)
+  // But HIP angle tells us if body is bent at the hip = kneeling
+  // Kneeling: body pivots at hip → avg hip angle < 150°
+  // Proper pushup: body is straight → avg hip angle ≥ 150°
+  const HIP_STRAIGHT_MIN = 150;
+  const avgHipAngle = Math.round((leftHipAngle + rightHipAngle) / 2);
+  const kneesOk = avgHipAngle >= HIP_STRAIGHT_MIN;
+  checks.push({
+    label: "Body straight",
+    pass: kneesOk,
+    value: `hip ${avgHipAngle}° ${kneesOk ? "✓" : "— lift hips/legs"}`,
+  });
 
   return { ok: visOk && shouldersLevel && wristsDown && hipsOk && kneesOk, checks, avgElbow, allAngles };
 }
