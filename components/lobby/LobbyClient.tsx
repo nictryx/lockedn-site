@@ -488,24 +488,22 @@ export default function LobbyClient({ roomId }: Props) {
               <div style={{ color: COLORS.text, fontWeight: 600, marginBottom: 10, fontSize: 14 }}>
                 How to fix
               </div>
-              <div style={{
-                display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6,
-                color: COLORS.text2,
-              }}>
-                <span>Tap the <span role="img" aria-label="lock">🔒</span> lock icon</span>
-                <span style={{ color: COLORS.text3, fontWeight: 700 }}>{"&&"}</span>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  Go to
-                  <span style={{
-                    width: 22, height: 22, borderRadius: 7,
-                    display: "inline-flex", alignItems: "center", justifyContent: "center",
-                    color: COLORS.text, background: COLORS.surface2,
-                    border: `0.5px solid ${COLORS.borderBold}`,
-                  }}>
-                    <SettingsIcon size={14} color={COLORS.text} />
-                  </span>
-                  <span style={{ color: COLORS.text, fontWeight: 600 }}>Settings</span>
-                </span>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ color: COLORS.text3, fontSize: 11, marginBottom: 4,
+                              textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 600 }}>
+                  Chrome / Android
+                </div>
+                Tap the <span role="img" aria-label="lock">🔒</span> lock icon in the URL bar → Permissions → Camera → Allow
+              </div>
+              <div>
+                <div style={{ color: COLORS.text3, fontSize: 11, marginBottom: 4,
+                              textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 600 }}>
+                  Safari / iPhone
+                </div>
+                <span style={{ display: "inline-flex", alignItems: "center", verticalAlign: "middle" }}>
+                  <SettingsIcon size={14} color={COLORS.text2} />
+                </span>{" "}
+                Settings → Safari → Camera → Allow
               </div>
             </div>
           )}
@@ -1283,6 +1281,3 @@ function VSBadge() {
     </div>
   );
 }
-
-
-
