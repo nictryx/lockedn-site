@@ -1,6 +1,5 @@
 //DEV NOTE : JUST SOLO ... USED FOR TESTING PUSHUPS WITH MEDIAPIPE MODEL
 
-
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -50,6 +49,13 @@ function angleDeg(a: Landmark, b: Landmark, c: Landmark) {
 // ── Front-facing position check ────────────────────────────────────
 function checkFrontFacing(lms: Landmark[]): {
   ok: boolean; checks: CheckResult[]; avgElbow: number;
+  allAngles: {
+    leftElbow: number; rightElbow: number;
+    leftKnee: number;  rightKnee: number;
+    leftHip: number;   rightHip: number;
+    leftKneeVis: number; rightKneeVis: number;
+    leftAnkleVis: number; rightAnkleVis: number;
+  };
 } {
   const ls = lms[LM.LEFT_SHOULDER];
   const rs = lms[LM.RIGHT_SHOULDER];
@@ -68,6 +74,25 @@ function checkFrontFacing(lms: Landmark[]): {
   const rightElbow = angleDeg(rs, re, rw);
   const avgElbow   = Math.round((leftElbow + rightElbow) / 2);
 
+  // Compute ALL angles for live display — helps calibration
+  const leftKneeAngle  = Math.round(angleDeg(lh, lk, la));
+  const rightKneeAngle = Math.round(angleDeg(rh, rk, ra));
+  const leftHipAngle   = Math.round(angleDeg(ls, lh, lk));
+  const rightHipAngle  = Math.round(angleDeg(rs, rh, rk));
+
+  const allAngles = {
+    leftElbow:  Math.round(leftElbow),
+    rightElbow: Math.round(rightElbow),
+    leftKnee:   leftKneeAngle,
+    rightKnee:  rightKneeAngle,
+    leftHip:    leftHipAngle,
+    rightHip:   rightHipAngle,
+    leftKneeVis:  Math.round(vis(lk) * 100),
+    rightKneeVis: Math.round(vis(rk) * 100),
+    leftAnkleVis:  Math.round(vis(la) * 100),
+    rightAnkleVis: Math.round(vis(ra) * 100),
+  };
+
   const checks: CheckResult[] = [];
 
   // 1. Key landmarks visible
@@ -75,7 +100,7 @@ function checkFrontFacing(lms: Landmark[]): {
   const visOk  = keyVis >= VIS_MIN;
   checks.push({ label: "Body visible", pass: visOk,
     value: `vis: ${Math.round(keyVis * 100)}%` });
-  if (!visOk) return { ok: false, checks, avgElbow };
+  if (!visOk) return { ok: false, checks, avgElbow, allAngles };
 
   // 2. Shoulders roughly level
   const shoulderDiff = Math.abs(ls.y - rs.y);
@@ -131,7 +156,7 @@ function checkFrontFacing(lms: Landmark[]): {
 
   checks.push({ label: "Legs straight", pass: kneesOk, value: kneeAngleDisplay });
 
-  return { ok: visOk && shouldersLevel && wristsDown && hipsOk && kneesOk, checks, avgElbow };
+  return { ok: visOk && shouldersLevel && wristsDown && hipsOk && kneesOk, checks, avgElbow, allAngles };
 }
 
 export default function PoseTestClient() {
@@ -159,6 +184,13 @@ export default function PoseTestClient() {
   const [positionOk, setPositionOk] = useState(false);
   const [checks,     setChecks]     = useState<CheckResult[]>([]);
   const [elbowAngle, setElbowAngle] = useState(0);
+  const [allAngles,  setAllAngles]  = useState({
+    leftElbow: 0, rightElbow: 0,
+    leftKnee: 0,  rightKnee: 0,
+    leftHip: 0,   rightHip: 0,
+    leftKneeVis: 0, rightKneeVis: 0,
+    leftAnkleVis: 0, rightAnkleVis: 0,
+  });
 
   async function createLandmarker() {
     const { FilesetResolver, PoseLandmarker } = await import("@mediapipe/tasks-vision");
@@ -221,6 +253,7 @@ export default function PoseTestClient() {
     const result = checkFrontFacing(lms);
     setChecks(result.checks);
     setElbowAngle(result.avgElbow);
+    setAllAngles(result.allAngles);
 
     const wasOk = posOkRef.current;
     const nowOk = result.ok;
@@ -393,6 +426,40 @@ export default function PoseTestClient() {
                   <span style={{ fontSize: 11, opacity: 0.5 }}>{c.value}</span>
                 </div>
               ))}
+            </div>
+            {/* ALL LIVE ANGLES — for calibration */}
+            <div style={{
+              padding: "8px 12px", borderRadius: 10, marginTop: 8,
+              background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.06)",
+            }}>
+              <div style={{ fontSize: 10, opacity: 0.4, letterSpacing: 1, marginBottom: 6 }}>
+                LIVE ANGLES (screenshot knees-on-floor and knees-off-floor)
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                {[
+                  { label: "L Elbow",      val: allAngles.leftElbow,    unit: "°" },
+                  { label: "R Elbow",      val: allAngles.rightElbow,   unit: "°" },
+                  { label: "L Knee",       val: allAngles.leftKnee,     unit: "°" },
+                  { label: "R Knee",       val: allAngles.rightKnee,    unit: "°" },
+                  { label: "L Hip",        val: allAngles.leftHip,      unit: "°" },
+                  { label: "R Hip",        val: allAngles.rightHip,     unit: "°" },
+                  { label: "L Knee vis",   val: allAngles.leftKneeVis,  unit: "%" },
+                  { label: "R Knee vis",   val: allAngles.rightKneeVis, unit: "%" },
+                  { label: "L Ankle vis",  val: allAngles.leftAnkleVis, unit: "%" },
+                  { label: "R Ankle vis",  val: allAngles.rightAnkleVis,unit: "%" },
+                ].map((a, i) => (
+                  <div key={i} style={{
+                    display: "flex", justifyContent: "space-between",
+                    padding: "2px 0", borderBottom: "1px solid rgba(255,255,255,0.04)",
+                    fontSize: 11,
+                  }}>
+                    <span style={{ opacity: 0.5 }}>{a.label}</span>
+                    <span style={{ fontWeight: 700, color: "#00ff88" }}>
+                      {a.val}{a.unit}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
