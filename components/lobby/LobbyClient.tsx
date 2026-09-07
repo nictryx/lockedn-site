@@ -488,19 +488,24 @@ export default function LobbyClient({ roomId }: Props) {
               <div style={{ color: COLORS.text, fontWeight: 600, marginBottom: 10, fontSize: 14 }}>
                 How to fix
               </div>
-              <div style={{ marginBottom: 12 }}>
-                <div style={{ color: COLORS.text3, fontSize: 11, marginBottom: 4,
-                              textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 600 }}>
-                  Chrome / Android
-                </div>
-                Tap the lock icon in the URL bar → Permissions → Camera → Allow
-              </div>
-              <div>
-                <div style={{ color: COLORS.text3, fontSize: 11, marginBottom: 4,
-                              textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 600 }}>
-                  Safari / iPhone
-                </div>
-                Settings → Safari → Camera → Allow
+              <div style={{
+                display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6,
+                color: COLORS.text2,
+              }}>
+                <span>Tap the <span role="img" aria-label="lock">🔒</span> lock icon</span>
+                <span style={{ color: COLORS.text3, fontWeight: 700 }}>{"&&"}</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  Go to
+                  <span style={{
+                    width: 22, height: 22, borderRadius: 7,
+                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    color: COLORS.text, background: COLORS.surface2,
+                    border: `0.5px solid ${COLORS.borderBold}`,
+                  }}>
+                    <SettingsIcon size={14} color={COLORS.text} />
+                  </span>
+                  <span style={{ color: COLORS.text, fontWeight: 600 }}>Settings</span>
+                </span>
               </div>
             </div>
           )}
@@ -994,6 +999,18 @@ function LockIcon({ size = 24, color = "currentColor" }: { size?: number; color?
   );
 }
 
+function SettingsIcon({ size = 24, color = "currentColor" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path
+        d="M12.22 2H11.78A2 2 0 0 0 9.78 4V4.18A2 2 0 0 1 8.78 5.91L8.35 6.16A2 2 0 0 1 6.35 6.16L6.2 6.08A2 2 0 0 0 3.47 6.81L3.25 7.19A2 2 0 0 0 3.98 9.92L4.13 10.02A2 2 0 0 1 5.13 11.74V12.25A2 2 0 0 1 4.13 13.99L3.98 14.08A2 2 0 0 0 3.25 16.81L3.47 17.19A2 2 0 0 0 6.2 17.92L6.35 17.84A2 2 0 0 1 8.35 17.84L8.78 18.09A2 2 0 0 1 9.78 19.82V20A2 2 0 0 0 11.78 22H12.22A2 2 0 0 0 14.22 20V19.82A2 2 0 0 1 15.22 18.09L15.65 17.84A2 2 0 0 1 17.65 17.84L17.8 17.92A2 2 0 0 0 20.53 17.19L20.75 16.81A2 2 0 0 0 20.02 14.08L19.87 13.99A2 2 0 0 1 18.87 12.25V11.74A2 2 0 0 1 19.87 10L20.02 9.91A2 2 0 0 0 20.75 7.18L20.53 6.8A2 2 0 0 0 17.8 6.07L17.65 6.15A2 2 0 0 1 15.65 6.15L15.22 5.9A2 2 0 0 1 14.22 4.17V4A2 2 0 0 0 12.22 2Z"
+        stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"
+      />
+      <circle cx="12" cy="12" r="3" stroke={color} strokeWidth="1.7" />
+    </svg>
+  );
+}
+
 function MicOnIcon({ size = 24, color = "currentColor" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1034,98 +1051,238 @@ function WarningIcon({ size = 24, color = "currentColor" }: { size?: number; col
 
 function VSBadge() {
   return (
-    <div style={{
+    <div
+      role="img"
+      aria-label="Versus"
+      style={{
       position: "absolute", top: "50%", left: "50%",
       transform: "translate(-50%, -50%)",
-      zIndex: 20, pointerEvents: "none",
+      zIndex: 20, pointerEvents: "none", isolation: "isolate",
+      width: "clamp(132px, 38vw, 168px)",
+      aspectRatio: "240 / 190",
     }}>
-      {/* Outer glow rings */}
-      <div style={{
-        position: "absolute", inset: -20,
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(48,209,88,0.25) 0%, transparent 65%)",
-        animation: "vsGlow 2.4s ease-in-out infinite",
+      {/* A fast energy line sells the impact without covering either camera. */}
+      <div className="lockedn-vs-seam" style={{
+        position: "absolute", top: "50%", left: "50%",
+        width: "min(94vw, 540px)", height: 2,
+        transform: "translate(-50%, -50%)",
+        background: "linear-gradient(90deg, transparent 0%, rgba(48,209,88,0.15) 18%, #30D158 43%, #FFFFFF 50%, #30D158 57%, rgba(48,209,88,0.15) 82%, transparent 100%)",
+        backgroundSize: "220% 100%",
+        boxShadow: "0 0 10px rgba(48,209,88,0.65)",
       }}/>
 
-      {/* Diamond/hexagon container */}
-      <div style={{
-        position: "relative",
-        width: 84, height: 84,
-        display: "flex", alignItems: "center", justifyContent: "center",
-      }}>
-        {/* Rotating rim */}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "conic-gradient(from 0deg, #30D158, transparent 30%, transparent 55%, #30D158 65%, transparent 90%)",
-          borderRadius: 20,
-          animation: "vsRotate 4s linear infinite",
-          opacity: 0.7,
-        }}/>
+      <div className="lockedn-vs-aura" style={{
+        position: "absolute", inset: "8% 2%",
+        borderRadius: "50%",
+        background: "radial-gradient(ellipse, rgba(48,209,88,0.38) 0%, rgba(48,209,88,0.12) 38%, transparent 72%)",
+        filter: "blur(8px)",
+      }}/>
 
-        {/* Inner black diamond */}
-        <div style={{
-          position: "absolute", inset: 2,
-          background: "linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%)",
-          borderRadius: 18,
-          border: "1px solid rgba(48,209,88,0.4)",
-          boxShadow: "inset 0 0 20px rgba(48,209,88,0.15), 0 0 30px rgba(0,0,0,0.6)",
-        }}/>
+      <div className="lockedn-vs-stage" style={{ position: "absolute", inset: 0 }}>
+        <svg
+          className="lockedn-vs-emblem"
+          width="100%" height="100%" viewBox="0 0 240 190"
+          fill="none" xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          style={{ overflow: "visible", filter: "drop-shadow(0 11px 14px rgba(0,0,0,0.72)) drop-shadow(0 0 7px rgba(48,209,88,0.42))" }}
+        >
+          <defs>
+            <linearGradient id="lockednVsWing" x1="24" y1="34" x2="102" y2="133" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#F7FFF9" />
+              <stop offset="0.12" stopColor="#30D158" />
+              <stop offset="0.48" stopColor="#071009" />
+              <stop offset="1" stopColor="#020403" />
+            </linearGradient>
+            <linearGradient id="lockednVsFrame" x1="76" y1="42" x2="165" y2="149" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#FFFFFF" />
+              <stop offset="0.16" stopColor="#30D158" />
+              <stop offset="0.48" stopColor="#07120A" />
+              <stop offset="0.78" stopColor="#30D158" />
+              <stop offset="1" stopColor="#EFFFF3" />
+            </linearGradient>
+            <radialGradient id="lockednVsCore" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 88) rotate(90) scale(54 62)">
+              <stop stopColor="#193E22" />
+              <stop offset="0.4" stopColor="#07140A" />
+              <stop offset="1" stopColor="#010201" />
+            </radialGradient>
+            <linearGradient id="lockednVsTextV" x1="108" y1="72" x2="108" y2="117" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#FFFFFF" />
+              <stop offset="0.58" stopColor="#F4FFF7" />
+              <stop offset="1" stopColor="#A9F5BB" />
+            </linearGradient>
+            <linearGradient id="lockednVsTextS" x1="140" y1="74" x2="140" y2="116" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#FFFFFF" />
+              <stop offset="0.34" stopColor="#DFFFF0" />
+              <stop offset="1" stopColor="#30D158" />
+            </linearGradient>
+            <clipPath id="lockednVsCoreClip">
+              <path d="M120 48L168 95L120 143L72 95L120 48Z" />
+            </clipPath>
+          </defs>
 
-        {/* Grid pattern overlay */}
-        <div style={{
-          position: "absolute", inset: 4, borderRadius: 16,
-          backgroundImage: `
-            linear-gradient(rgba(48,209,88,0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(48,209,88,0.05) 1px, transparent 1px)
-          `,
-          backgroundSize: "8px 8px",
-          overflow: "hidden",
-        }}/>
+          {/* Broken neon wings, inspired by the reference artwork. */}
+          <g className="lockedn-vs-wings">
+            <path d="M104 80L60 24L69 70L22 43L58 86L10 92L64 101L26 142L91 112L104 80Z"
+                  fill="url(#lockednVsWing)" stroke="#30D158" strokeWidth="1.8" strokeLinejoin="round" />
+            <path d="M136 80L180 24L171 70L218 43L182 86L230 92L176 101L214 142L149 112L136 80Z"
+                  fill="url(#lockednVsWing)" stroke="#30D158" strokeWidth="1.8" strokeLinejoin="round" />
+            <path d="M88 72L53 45L66 77L31 68L67 91" stroke="#F4FFF7" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.84" />
+            <path d="M152 72L187 45L174 77L209 68L173 91" stroke="#F4FFF7" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.84" />
+            <path d="M84 88L42 85M156 88L198 85" stroke="#30D158" strokeWidth="5" strokeLinecap="round" opacity="0.8" />
+            <path d="M76 105L42 124M164 105L198 124" stroke="#30D158" strokeWidth="2" strokeLinecap="round" opacity="0.55" />
+          </g>
 
-        {/* VS text */}
-        <div style={{
-          position: "relative",
-          fontSize: 34, fontWeight: 900,
-          letterSpacing: -1.5,
-          fontFamily: SYSTEM_FONT,
-          background: "linear-gradient(180deg, #FFFFFF 0%, #B8F5C8 60%, #30D158 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          backgroundClip: "text",
-          filter: "drop-shadow(0 0 12px rgba(48,209,88,0.6))",
-          animation: "vsPulse 1.6s ease-in-out infinite",
-        }}>
-          VS
-        </div>
+          {/* Crossed energy blades. */}
+          <g className="lockedn-vs-blades">
+            <path d="M54 145L72 154L128 47L113 37L54 145Z" fill="#020403" stroke="#30D158" strokeWidth="2" strokeLinejoin="round" />
+            <path d="M64 141L71 145L119 52L113 48L64 141Z" fill="#EFFFF3" />
+            <path d="M186 145L168 154L112 47L127 37L186 145Z" fill="#020403" stroke="#30D158" strokeWidth="2" strokeLinejoin="round" />
+            <path d="M176 141L169 145L121 52L127 48L176 141Z" fill="#30D158" />
+            <path d="M49 150L78 163M191 150L162 163" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" />
+          </g>
 
-        {/* Bottom shine sweep */}
-        <div style={{
-          position: "absolute", inset: 4, borderRadius: 16,
-          background: "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%)",
-          animation: "vsShine 3s ease-in-out infinite",
-          pointerEvents: "none",
-        }}/>
+          <circle className="lockedn-vs-orbit" cx="120" cy="95" r="78"
+                  stroke="#30D158" strokeWidth="1.5" strokeDasharray="4 17" opacity="0.7" />
+
+          {/* Layered armor frame and glowing core. */}
+          <path d="M120 25L189 95L120 165L51 95L120 25Z" fill="#010201" stroke="#30D158" strokeWidth="2.5" />
+          <path d="M120 35L178 95L120 155L62 95L120 35Z" fill="url(#lockednVsFrame)" stroke="#FFFFFF" strokeWidth="1.3" />
+          <path d="M120 46L168 95L120 145L72 95L120 46Z" fill="url(#lockednVsCore)" stroke="#30D158" strokeWidth="2.5" />
+          <path d="M120 55L159 95L120 136L81 95L120 55Z" stroke="rgba(255,255,255,0.34)" strokeWidth="1" />
+          <path d="M72 95L120 46L97 95L120 145L72 95Z" fill="rgba(48,209,88,0.09)" />
+          <path d="M168 95L120 46L143 95L120 145L168 95Z" fill="rgba(255,255,255,0.035)" />
+
+          {/* Subtle tactical grid, clipped inside the core. */}
+          <g clipPath="url(#lockednVsCoreClip)" opacity="0.24">
+            {[72, 82, 92, 102, 112, 122, 132, 142, 152, 162].map((x) => (
+              <line key={`vx-${x}`} x1={x} y1="48" x2={x} y2="143" stroke="#30D158" strokeWidth="0.6" />
+            ))}
+            {[55, 65, 75, 85, 95, 105, 115, 125, 135].map((y) => (
+              <line key={`hy-${y}`} x1="72" y1={y} x2="168" y2={y} stroke="#30D158" strokeWidth="0.6" />
+            ))}
+            <path className="lockedn-vs-sweep" d="M43 45L69 45L143 145L117 145L43 45Z" fill="rgba(255,255,255,0.32)" />
+          </g>
+
+          {/* Custom vector lettering renders identically on Android and iPhone. */}
+          <g className="lockedn-vs-type-glow" stroke="#30D158" strokeWidth="8"
+             strokeLinejoin="round" paintOrder="stroke fill">
+            <path d="M84 72H98L107 100L118 72H132L114 117H99L84 72Z" fill="url(#lockednVsTextV)" />
+            <path d="M156 74L152 85H133C130 85 128 86 128 89C128 91 130 92 134 92H142C151 92 155 96 155 103C155 112 149 116 138 116H117L121 106H140C144 106 145 105 145 102C145 100 143 99 140 99H131C122 99 118 95 118 88C118 79 124 74 134 74H156Z" fill="url(#lockednVsTextS)" />
+          </g>
+          <g stroke="#010301" strokeWidth="4" strokeLinejoin="round" paintOrder="stroke fill">
+            <path d="M84 72H98L107 100L118 72H132L114 117H99L84 72Z" fill="url(#lockednVsTextV)" />
+            <path d="M156 74L152 85H133C130 85 128 86 128 89C128 91 130 92 134 92H142C151 92 155 96 155 103C155 112 149 116 138 116H117L121 106H140C144 106 145 105 145 102C145 100 143 99 140 99H131C122 99 118 95 118 88C118 79 124 74 134 74H156Z" fill="url(#lockednVsTextS)" />
+          </g>
+
+          {/* Impact sparks. */}
+          <g fill="#FFFFFF">
+            <circle className="lockedn-vs-spark lockedn-vs-spark-a" cx="29" cy="62" r="2.6" />
+            <circle className="lockedn-vs-spark lockedn-vs-spark-b" cx="207" cy="55" r="2" />
+            <circle className="lockedn-vs-spark lockedn-vs-spark-c" cx="218" cy="119" r="2.4" />
+            <circle className="lockedn-vs-spark lockedn-vs-spark-d" cx="31" cy="126" r="1.8" />
+          </g>
+          <g stroke="#30D158" strokeWidth="2.2" strokeLinecap="round">
+            <path className="lockedn-vs-spark lockedn-vs-spark-a" d="M14 67L4 63" />
+            <path className="lockedn-vs-spark lockedn-vs-spark-b" d="M221 73L236 67" />
+            <path className="lockedn-vs-spark lockedn-vs-spark-c" d="M206 137L218 146" />
+            <path className="lockedn-vs-spark lockedn-vs-spark-d" d="M35 43L27 33" />
+          </g>
+        </svg>
       </div>
 
       <style>{`
-        @keyframes vsPulse {
-          0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 12px rgba(48,209,88,0.6)); }
-          50%      { transform: scale(1.06); filter: drop-shadow(0 0 18px rgba(48,209,88,0.9)); }
+        .lockedn-vs-stage {
+          animation: lockednVsImpact 720ms cubic-bezier(.18,.9,.2,1.2) both,
+                     lockednVsFloat 3.4s 720ms ease-in-out infinite;
+          transform-origin: center;
+          will-change: transform, opacity;
         }
-        @keyframes vsGlow {
-          0%, 100% { opacity: 0.5; transform: scale(1);    }
-          50%      { opacity: 1;   transform: scale(1.15); }
+        .lockedn-vs-aura {
+          animation: lockednVsAura 2.4s ease-in-out infinite;
+          will-change: transform, opacity;
         }
-        @keyframes vsRotate {
-          from { transform: rotate(0deg);   }
-          to   { transform: rotate(360deg); }
+        .lockedn-vs-seam {
+          animation: lockednVsSeam 2.8s ease-in-out infinite;
+          will-change: opacity, background-position;
         }
-        @keyframes vsShine {
-          0%   { transform: translateX(-100%); }
-          60%  { transform: translateX(100%);  }
-          100% { transform: translateX(100%);  }
+        .lockedn-vs-orbit {
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: lockednVsOrbit 10s linear infinite;
+        }
+        .lockedn-vs-type-glow {
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: lockednVsType 1.9s ease-in-out infinite;
+        }
+        .lockedn-vs-sweep {
+          animation: lockednVsSweep 3.2s 900ms cubic-bezier(.45,0,.2,1) infinite;
+          will-change: transform, opacity;
+        }
+        .lockedn-vs-spark {
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: lockednVsSpark 2.8s ease-out infinite;
+          will-change: transform, opacity;
+        }
+        .lockedn-vs-spark-b { animation-delay: 420ms; }
+        .lockedn-vs-spark-c { animation-delay: 860ms; }
+        .lockedn-vs-spark-d { animation-delay: 1.24s; }
+
+        @keyframes lockednVsImpact {
+          0%   { opacity: 0; transform: scale(.34) rotate(-13deg); }
+          58%  { opacity: 1; transform: scale(1.12) rotate(2deg); }
+          78%  { transform: scale(.96) rotate(-1deg); }
+          100% { opacity: 1; transform: scale(1) rotate(0); }
+        }
+        @keyframes lockednVsFloat {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50%      { transform: translateY(-3px) scale(1.018); }
+        }
+        @keyframes lockednVsAura {
+          0%, 100% { opacity: .48; transform: scale(.92); }
+          50%      { opacity: .92; transform: scale(1.12); }
+        }
+        @keyframes lockednVsSeam {
+          0%, 100% { opacity: .28; background-position: 100% 50%; }
+          48%      { opacity: .95; }
+          60%      { opacity: .4; background-position: 0% 50%; }
+        }
+        @keyframes lockednVsOrbit {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes lockednVsType {
+          0%, 100% { opacity: .58; transform: scale(1); }
+          50%      { opacity: 1; transform: scale(1.035); }
+        }
+        @keyframes lockednVsSweep {
+          0%, 15% { opacity: 0; transform: translateX(-110px); }
+          32%     { opacity: .8; }
+          52%     { opacity: 0; transform: translateX(170px); }
+          100%    { opacity: 0; transform: translateX(170px); }
+        }
+        @keyframes lockednVsSpark {
+          0%, 48%, 100% { opacity: 0; transform: scale(.3); }
+          55%           { opacity: 1; transform: scale(1.45); }
+          72%           { opacity: 0; transform: scale(.8) translateY(-4px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .lockedn-vs-stage,
+          .lockedn-vs-aura,
+          .lockedn-vs-seam,
+          .lockedn-vs-orbit,
+          .lockedn-vs-type-glow,
+          .lockedn-vs-sweep,
+          .lockedn-vs-spark {
+            animation: none !important;
+          }
+          .lockedn-vs-aura { opacity: .72; }
+          .lockedn-vs-spark { opacity: .75; }
         }
       `}</style>
     </div>
   );
 }
+
+
+
